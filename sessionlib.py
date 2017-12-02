@@ -1,13 +1,14 @@
 import logging
 
 from contextlib import AbstractContextManager
+from utils import Observable
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['AbstractSession', 'contextaware']
+__all__ = ['Session', 'contextaware']
 
 
-class AbstractSession(AbstractContextManager):
+class Session(AbstractContextManager):
     _sessions = []
 
     @classmethod
@@ -22,53 +23,43 @@ class AbstractSession(AbstractContextManager):
     def _pop(cls):
         cls._sessions.pop()
 
+    def __init__(self):
+        self.on_start = Observable(self)
+        self.on_enter = Observable(self)
+        self.on_leave = Observable(self)
+        self.on_close = Observable(self)
+
+        self._started = False
+
     @property
     def started(self):
-        getattr(self, '_started', False)
-
-    @started.setter
-    def started(self, value):
-        self._started = value
+        return self._started
 
     def __enter__(self):
         self.__class__._push(self)
-        if self.started:
-            self.on_session_entered()
+        if self._started:
+            self.on_enter()
             logger.info(f'{self} session entered')
             return
 
-        self.started = True
-        self.on_session_started()
+        self._started = True
+        self.on_start()
         logger.info(f'{self} session started')
 
         return self
 
-
     def __exit__(self, *exc_info):
         self.__class__._pop()
         if self in self.__class__._sessions:
-            self.on_session_left()
+            self.on_leave()
             logger.info(f'{self} session left')
             return
 
-        self.on_session_closed()
+        self.on_close()
         logger.info(f'{self} session closed')
 
 
-    def on_session_started(self):
-        pass
-
-    def on_session_entered(self):
-        pass
-
-    def on_session_left(self):
-        pass
-
-    def on_session_closed(self):
-        pass
-
-
-def contextaware(func, session_class=AbstractSession):
+def contextaware(func, session_class=Session):
     def func_wrapper(*args, **kwargs):
         current_session = session_class.current()
 
