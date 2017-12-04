@@ -72,11 +72,11 @@ class Session(AbstractContextManager):
         logger.info(f'{self} session closed')
 
 
-def contextaware(func, session_class=Session):
+def contextaware(func):
     def func_wrapper(*args, **kwargs):
-        current_session = session_class.current()
+        current_session = Session.current()
 
-        if args and isinstance(args[0], session_class):
+        if args and isinstance(args[0], Session):
             session = args[0]
             if session is current_session:
                 return func(*args, **kwargs)
