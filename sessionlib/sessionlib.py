@@ -44,7 +44,7 @@ class Session(AbstractContextManager):
         self.__class__._push(self)
         if self._started:
             self.on_enter()
-            logger.info(f'{self} session entered')
+            logger.info('{} session entered'.format(self))
             return
 
         self.on_start()
@@ -53,7 +53,7 @@ class Session(AbstractContextManager):
             self._exit_stack.enter_context(context)
 
         self._started = True
-        logger.info(f'{self} session started')
+        logger.info('{} session started'.format(self))
 
         return self
 
@@ -61,7 +61,7 @@ class Session(AbstractContextManager):
         self.__class__._pop()
         if self in self.__class__._sessions:
             self.on_leave()
-            logger.info(f'{self} session left')
+            logger.info('{} session left'.format(self))
             return
 
         try:
@@ -69,7 +69,7 @@ class Session(AbstractContextManager):
         finally:
             self._exit_stack.close()
 
-        logger.info(f'{self} session closed')
+        logger.info('{} session closed'.format(self))
 
 
 def contextaware(func):
