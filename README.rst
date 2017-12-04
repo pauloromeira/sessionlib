@@ -13,11 +13,6 @@ sessionlib
         :target: http://sessionlib.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://pyup.io/repos/github/pauloromeira/sessionlib/shield.svg
-     :target: https://pyup.io/repos/github/pauloromeira/sessionlib/
-     :alt: Updates
-
-
 Session Library
 
 
