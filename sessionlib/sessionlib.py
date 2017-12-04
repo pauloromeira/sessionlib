@@ -2,13 +2,13 @@
 
 import logging
 
-from contextlib import AbstractContextManager, ExitStack
+from contextlib import ExitStack
 from .utils import Observable
 
 logger = logging.getLogger(__name__)
 
 
-class Session(AbstractContextManager):
+class Session(object):
     _sessions = []
 
     @classmethod
