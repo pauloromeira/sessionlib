@@ -1,6 +1,6 @@
 import logging
 
-from contextlib import AbstractContextManager
+from contextlib import AbstractContextManager, ExitStack
 from utils import Observable
 
 logger = logging.getLogger(__name__)
@@ -23,13 +23,18 @@ class Session(AbstractContextManager):
     def _pop(cls):
         cls._sessions.pop()
 
-    def __init__(self):
+    def __init__(self, *contextmanagers):
         self.on_start = Observable(self)
         self.on_enter = Observable(self)
         self.on_leave = Observable(self)
         self.on_close = Observable(self)
 
+        self._exit_stack = ExitStack()
         self._started = False
+        self._cms = contextmanagers
+
+    def build_context(self):
+        yield from self._cms
 
     @property
     def started(self):
@@ -42,8 +47,12 @@ class Session(AbstractContextManager):
             logger.info(f'{self} session entered')
             return
 
-        self._started = True
         self.on_start()
+
+        for context in self.build_context():
+            self._exit_stack.enter_context(context)
+
+        self._started = True
         logger.info(f'{self} session started')
 
         return self
@@ -55,7 +64,11 @@ class Session(AbstractContextManager):
             logger.info(f'{self} session left')
             return
 
-        self.on_close()
+        try:
+            self.on_close()
+        finally:
+            self._exit_stack.close()
+
         logger.info(f'{self} session closed')
 
 
