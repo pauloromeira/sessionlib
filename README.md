@@ -1,2 +1,0 @@
-# sessionlib
-under early development

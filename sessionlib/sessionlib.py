@@ -1,11 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import logging
 
 from contextlib import AbstractContextManager, ExitStack
-from utils import Observable
+from .utils import Observable
 
 logger = logging.getLogger(__name__)
-
-__all__ = ['Session', 'contextaware']
 
 
 class Session(AbstractContextManager):
