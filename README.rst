@@ -10,7 +10,7 @@ sessionlib
         :target: https://travis-ci.org/pauloromeira/sessionlib
 
 .. image:: https://readthedocs.org/projects/sessionlib/badge/?version=latest
-        :target: http://sessionlib.readthedocs.io/en/latest/?badge=latest
+        :target: https://sessionlib.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 Session Library
