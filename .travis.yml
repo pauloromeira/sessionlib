@@ -4,10 +4,10 @@
 language: python
 python:
   - 3.6
-  # TODO [romeira]: Add support for older python versions {04/12/17 09:29}
-  # - 3.5
-  # - 3.4
-  # - 3.3
+  - 3.5
+  - 3.4
+  - 3.3
+  # TODO [romeira]: Add support for 2.x python versions {04/12/17 09:29}
   # - 2.7
   # - 2.6
 

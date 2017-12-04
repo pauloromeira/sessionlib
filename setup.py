@@ -43,13 +43,13 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        # TODO [romeira]: Add support for older python versions {04/12/17 09:29}
+        # TODO [romeira]: Add support for 2.x python versions {04/12/17 09:29}
         # "Programming Language :: Python :: 2",
         # 'Programming Language :: Python :: 2.6',
         # 'Programming Language :: Python :: 2.7',
-        # 'Programming Language :: Python :: 3',
-        # 'Programming Language :: Python :: 3.3',
-        # 'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.6',
     ],
     test_suite='tests',
