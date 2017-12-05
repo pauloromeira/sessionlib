@@ -6,4 +6,4 @@ from .sessionlib import Session, contextaware
 
 __author__ = """Paulo Romeira"""
 __email__ = 'paulo@pauloromeira.com'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
