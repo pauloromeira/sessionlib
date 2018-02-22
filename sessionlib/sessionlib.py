@@ -24,17 +24,33 @@ class Session(object):
         cls._sessions.pop()
 
     def __init__(self, *contextmanagers):
-        self.on_start = Observable(self)
-        self.on_enter = Observable(self)
-        self.on_leave = Observable(self)
-        self.on_close = Observable(self)
+        self._on_start = Observable(self)
+        self._on_enter = Observable(self)
+        self._on_leave = Observable(self)
+        self._on_close = Observable(self)
 
         self._exit_stack = ExitStack()
         self._started = False
-        self._cms = contextmanagers
+        self._contexts = contextmanagers
 
-    def build_context(self):
-        yield from self._cms
+    @property
+    def on_start(self):
+        return self._on_start
+
+    @property
+    def on_enter(self):
+        return self._on_enter
+
+    @property
+    def on_leave(self):
+        return self._on_leave
+
+    @property
+    def on_close(self):
+        return self._on_close
+
+    def contexts(self):
+        yield from self._contexts
 
     @property
     def started(self):
@@ -49,7 +65,7 @@ class Session(object):
 
         self.on_start()
 
-        for context in self.build_context():
+        for context in self.contexts():
             self._exit_stack.enter_context(context)
 
         self._started = True
