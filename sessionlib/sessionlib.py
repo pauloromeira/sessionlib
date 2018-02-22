@@ -72,7 +72,7 @@ class Session(object):
         logger.info('{} session closed'.format(self))
 
 
-def contextaware(func):
+def sessionaware(func):
     def func_wrapper(*args, **kwargs):
         current_session = Session.current()
 

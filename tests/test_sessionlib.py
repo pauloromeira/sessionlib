@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from sessionlib import Session, contextaware
+from sessionlib import Session, sessionaware
 
 
 def test_session_stack():
@@ -19,8 +19,8 @@ def test_session_stack():
     assert Session.current() == None
 
 
-def test_contextaware():
-    @contextaware
+def test_sessionaware():
+    @sessionaware
     def aware_func(session):
         return session
 
