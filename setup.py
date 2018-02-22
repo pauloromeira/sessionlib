@@ -25,13 +25,13 @@ test_requirements = [
 
 setup(
     name='sessionlib',
-    version='0.1.1',
+    version='0.1.2',
     description="Session Library",
     long_description=readme + '\n\n' + history,
     author="Paulo Romeira",
     author_email='paulo@pauloromeira.com',
     url='https://github.com/pauloromeira/sessionlib',
-    download_url='https://github.com/pauloromeira/sessionlib/tarball/0.1.1',
+    download_url='https://github.com/pauloromeira/sessionlib/tarball/0.1.2',
     packages=find_packages(include=['sessionlib']),
     include_package_data=True,
     install_requires=requirements,
