@@ -49,7 +49,7 @@ class Session(object):
     def on_close(self):
         return self._on_close
 
-    def contexts(self):
+    def enter_contexts(self):
         yield from self._contexts
 
     @property
@@ -65,8 +65,9 @@ class Session(object):
 
         self.on_start()
 
-        for context in self.contexts():
-            self._exit_stack.enter_context(context)
+        enter_contexts = self.enter_contexts()
+        for context in enter_contexts:
+            enter_contexts.send(self._exit_stack.enter_context(context))
 
         self._started = True
         logger.info('{} session started'.format(self))
