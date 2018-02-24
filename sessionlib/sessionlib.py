@@ -54,43 +54,44 @@ class Session(object):
         return getattr(self, '_started', False)
 
     def __enter__(self):
+        previous = self.__class__.current()
         self.__class__._push(self)
-        if self.started:
+        if not self.started:
+            self._exit_stack = ExitStack()
+
+            enter_contexts = self.enter_contexts()
+            try:
+                context = next(enter_contexts)
+                while True:
+                    context_obj = self._exit_stack.enter_context(context)
+                    context = enter_contexts.send(context_obj)
+            except StopIteration:
+                pass
+
+            self.on_start()
+
+            self._started = True
+            logger.info('{} session started'.format(self))
+
+        if previous is not self:
             self.on_enter()
             logger.info('{} session entered'.format(self))
-            return
-
-        self._exit_stack = ExitStack()
-
-        enter_contexts = self.enter_contexts()
-        try:
-            context = next(enter_contexts)
-            while True:
-                context_obj = self._exit_stack.enter_context(context)
-                context = enter_contexts.send(context_obj)
-        except StopIteration:
-            pass
-
-        self.on_start()
-
-        self._started = True
-        logger.info('{} session started'.format(self))
 
         return self
 
     def __exit__(self, *exc_info):
         self.__class__._pop()
-        if self in self.__class__._sessions:
+        if self.__class__.current() is not self:
             self.on_leave()
-            logger.info('{} session left'.format(self))
-            return
+            logger.info(f'{self} session left')
 
-        try:
-            self.on_close()
-        finally:
-            self._exit_stack.close()
+        if self not in self.__class__._sessions:
+            try:
+                self.on_close()
+            finally:
+                self._exit_stack.close()
 
-        logger.info('{} session closed'.format(self))
+            logger.info('{} session closed'.format(self))
 
 
 def sessionaware(func):
