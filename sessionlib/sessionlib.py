@@ -24,29 +24,26 @@ class Session(object):
         cls._sessions.pop()
 
     def __init__(self, *contextmanagers):
-        self._on_start = Observable(self)
-        self._on_enter = Observable(self)
-        self._on_leave = Observable(self)
-        self._on_close = Observable(self)
-
-        self._exit_stack = ExitStack()
-        self._started = False
         self._contexts = contextmanagers
 
     @property
     def on_start(self):
+        self._on_start = getattr(self, '_on_start', Observable(self))
         return self._on_start
 
     @property
     def on_enter(self):
+        self._on_enter = getattr(self, '_on_enter', Observable(self))
         return self._on_enter
 
     @property
     def on_leave(self):
+        self._on_leave = getattr(self, '_on_leave', Observable(self))
         return self._on_leave
 
     @property
     def on_close(self):
+        self._on_close = getattr(self, '_on_close', Observable(self))
         return self._on_close
 
     def enter_contexts(self):
@@ -54,20 +51,22 @@ class Session(object):
 
     @property
     def started(self):
-        return self._started
+        return getattr(self, '_started', False)
 
     def __enter__(self):
         self.__class__._push(self)
-        if self._started:
+        if self.started:
             self.on_enter()
             logger.info('{} session entered'.format(self))
             return
 
-        self.on_start()
+        self._exit_stack = ExitStack()
 
         enter_contexts = self.enter_contexts()
         for context in enter_contexts:
             enter_contexts.send(self._exit_stack.enter_context(context))
+
+        self.on_start()
 
         self._started = True
         logger.info('{} session started'.format(self))
