@@ -63,8 +63,13 @@ class Session(object):
         self._exit_stack = ExitStack()
 
         enter_contexts = self.enter_contexts()
-        for context in enter_contexts:
-            enter_contexts.send(self._exit_stack.enter_context(context))
+        try:
+            context = next(enter_contexts)
+            while True:
+                context_obj = self._exit_stack.enter_context(context)
+                context = enter_contexts.send(context_obj)
+        except StopIteration:
+            pass
 
         self.on_start()
 

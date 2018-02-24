@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from sessionlib import Session, sessionaware
+from contextlib import contextmanager
 
 
 def test_session_stack():
@@ -53,3 +54,29 @@ def test_events(capsys):
 
     out, _ = capsys.readouterr()
     assert out == 'start\nenter\nleave\nclose\n'
+
+
+def test_contextmanagers():
+    @contextmanager
+    def cmanager(name):
+        yield name
+
+    class SampleSession(Session):
+        def enter_contexts(self):
+            cm = yield cmanager('1')
+            assert cm == '1'
+
+    class SampleSession2(Session):
+        def enter_contexts(self):
+            yield cmanager('ho')
+            cm = yield cmanager('hi')
+            assert cm == 'hi'
+
+    with SampleSession():
+        pass
+
+    with SampleSession2():
+        pass
+
+
+
