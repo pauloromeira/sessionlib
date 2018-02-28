@@ -43,7 +43,7 @@ def test_sessionaware():
 
 def test_events(capsys):
     s1 = Session()
-    s1.on_start.subscribe(lambda: print('start'))
+    s1.on_open.subscribe(lambda: print('open'))
     s1.on_enter.subscribe(lambda: print('enter'))
     s1.on_leave.subscribe(lambda: print('leave'))
     s1.on_close.subscribe(lambda: print('close'))
@@ -53,7 +53,7 @@ def test_events(capsys):
             pass
 
     out, _ = capsys.readouterr()
-    assert out == 'start\nenter\nleave\nclose\n'
+    assert out == 'open\nenter\nleave\nclose\n'
 
 
 def test_contextmanagers():

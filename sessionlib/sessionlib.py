@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 class Session(object):
     _sessions = []
 
+
     @classmethod
     def current(cls):
         return cls._sessions[-1] if cls._sessions else None
@@ -23,13 +24,15 @@ class Session(object):
     def _pop(cls):
         cls._sessions.pop()
 
+
     def __init__(self, *contextmanagers):
         self._contexts = contextmanagers
 
+
     @property
-    def on_start(self):
-        self._on_start = getattr(self, '_on_start', Observable(self))
-        return self._on_start
+    def on_open(self):
+        self._on_open = getattr(self, '_on_open', Observable(self))
+        return self._on_open
 
     @property
     def on_enter(self):
@@ -50,12 +53,13 @@ class Session(object):
         yield from self._contexts
 
     @property
-    def started(self):
-        return getattr(self, '_started', False)
+    def opened(self):
+        return getattr(self, '_opened', False)
 
-    def __enter__(self):
+
+    def open(self):
         self.__class__._push(self)
-        if self.started:
+        if self.opened:
             self.on_enter()
             logger.info('{} session entered'.format(self))
             return
@@ -71,14 +75,15 @@ class Session(object):
         except StopIteration:
             pass
 
-        self.on_start()
+        self.on_open()
 
-        self._started = True
-        logger.info('{} session started'.format(self))
+        self._opened = True
+        logger.info('{} session opened'.format(self))
 
         return self
 
-    def __exit__(self, *exc_info):
+
+    def close(self):
         self.__class__._pop()
         if self in self.__class__._sessions:
             self.on_leave()
@@ -91,6 +96,13 @@ class Session(object):
             self._exit_stack.close()
 
         logger.info('{} session closed'.format(self))
+
+
+    def __enter__(self):
+        return self.open()
+
+    def __exit__(self, *exc_info):
+        self.close()
 
 
 def sessionaware(func):
