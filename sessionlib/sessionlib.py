@@ -105,11 +105,11 @@ class Session(object):
         self.close()
 
 
-def sessionaware(func):
+def sessionaware(func, cls=Session):
     def func_wrapper(*args, **kwargs):
-        current_session = Session.current()
+        current_session = cls.current()
 
-        if args and isinstance(args[0], Session):
+        if args and isinstance(args[0], cls):
             session = args[0]
             if session is current_session:
                 return func(*args, **kwargs)
