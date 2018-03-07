@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import functools
 import logging
 
 from contextlib import ExitStack
@@ -105,18 +106,22 @@ class Session(object):
         self.close()
 
 
-def sessionaware(func, cls=Session):
-    def func_wrapper(*args, **kwargs):
-        current_session = cls.current()
+def sessionaware(function=None, cls=Session):
+    def _decorate(func):
+        @functools.wraps(func)
+        def wrapped(*args, **kwargs):
+            current_session = cls.current()
 
-        if args and isinstance(args[0], cls):
-            session = args[0]
-            if session is current_session:
-                return func(*args, **kwargs)
-            else:
-                with session:
+            if args and isinstance(args[0], cls):
+                session = args[0]
+                if session is current_session:
                     return func(*args, **kwargs)
-        else:
-            return func(current_session, *args, **kwargs)
+                else:
+                    with session:
+                        return func(*args, **kwargs)
+            else:
+                return func(current_session, *args, **kwargs)
 
-    return func_wrapper
+        return wrapped
+    
+    return _decorate(function) if function else _decorate
