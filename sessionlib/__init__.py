@@ -2,7 +2,7 @@
 
 """Top-level package for sessionlib."""
 
-from .sessionlib import Session, sessionaware
+from .sessionlib import Session, sessionaware, SessionlessError
 
 __author__ = """Paulo Romeira"""
 __email__ = 'paulo@pauloromeira.com'
