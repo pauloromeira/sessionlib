@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import functools
 import logging
 
+from types import GeneratorType
+from functools import wraps
 from contextlib import ExitStack
 from .utils import Observable
 
 logger = logging.getLogger(__name__)
 
+
+class SessionlessError(RuntimeError):
+    pass
 
 class Session(object):
     _sessions = []
@@ -29,6 +33,19 @@ class Session(object):
     def __init__(self, *contextmanagers):
         self._contexts = contextmanagers
 
+
+    def _push_function(self, func):
+        self._function_stack = getattr(self, '_function_stack', [])
+        self._function_stack.append(func)
+
+    def _pop_function(self):
+        self._function_stack = getattr(self, '_function_stack', [])
+        self._function_stack.pop()
+
+    @property
+    def current_function(self):
+        self._function_stack = getattr(self, '_function_stack', [])
+        return self._function_stack[-1] if self._function_stack else None
 
     @property
     def on_open(self):
@@ -108,20 +125,47 @@ class Session(object):
 
 def sessionaware(function=None, cls=Session):
     def _decorate(func):
-        @functools.wraps(func)
+        def _handle_generator(session, func, response):
+            session._push_function(func)
+            try:
+                for item in response:
+                    session._pop_function()
+                    yield item
+                    session._push_function(func)
+            except GeneratorExit:
+                session._push_function(func)
+            finally:
+                session._pop_function()
+
+
+        @wraps(func)
         def wrapped(*args, **kwargs):
             current_session = cls.current()
 
             if args and isinstance(args[0], cls):
                 session = args[0]
+            elif current_session:
+                session = current_session
+                args = (session,) + args
+            else:
+                raise SessionlessError('No session is currently active')
+
+            session._push_function(func)
+            try:
                 if session is current_session:
-                    return func(*args, **kwargs)
+                    response = func(*args, **kwargs)
                 else:
                     with session:
-                        return func(*args, **kwargs)
+                        response = func(*args, **kwargs)
+            finally:
+                session._pop_function()
+
+            if isinstance(response, GeneratorType):
+                return _handle_generator(session, func, response)
             else:
-                return func(current_session, *args, **kwargs)
+                return response
 
         return wrapped
     
     return _decorate(function) if function else _decorate
+
