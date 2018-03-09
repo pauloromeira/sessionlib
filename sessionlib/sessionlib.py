@@ -132,6 +132,8 @@ def sessionaware(function=None, cls=Session):
                     session._pop_function()
                     yield item
                     session._push_function(func)
+            except GeneratorExit:
+                session._push_function(func)
             finally:
                 session._pop_function()
 
@@ -142,11 +144,10 @@ def sessionaware(function=None, cls=Session):
 
             if args and isinstance(args[0], cls):
                 session = args[0]
-            else:
+            elif current_session:
                 session = current_session
                 args = (session,) + args
-
-            if session is None:
+            else:
                 raise SessionlessError('No session is currently active')
 
             session._push_function(func)
@@ -157,8 +158,6 @@ def sessionaware(function=None, cls=Session):
                     with session:
                         response = func(*args, **kwargs)
             finally:
-                if not session._function_stack:
-                    import ipdb; ipdb.set_trace()
                 session._pop_function()
 
             if isinstance(response, GeneratorType):

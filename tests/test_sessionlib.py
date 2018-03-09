@@ -213,3 +213,25 @@ def test_gen_function_stack():
         assert s.current_function == None
         s.method()
 
+
+
+def test_gen_function_next():
+    @sessionaware
+    def gen_func(session):
+        assert session.current_function.__name__ == 'gen_func'
+        for i in range(3):
+            assert session.current_function.__name__ == 'gen_func'
+            yield i
+            assert session.current_function.__name__ == 'gen_func'
+        assert session.current_function.__name__ == 'gen_func'
+
+    @sessionaware
+    def aware_func(session):
+        assert session.current_function.__name__ == 'aware_func'
+        g = gen_func()
+        next(g)
+        assert session.current_function.__name__ == 'aware_func'
+
+    with Session() as s:
+        aware_func()
+        assert s.current_function == None
