@@ -125,6 +125,7 @@ class Session(object):
 
 def sessionaware(function=None, cls=Session):
     def _decorate(func):
+        @wraps(func)
         def _handle_generator(session, func, response):
             session._push_function(func)
             try:

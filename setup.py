@@ -25,17 +25,17 @@ test_requirements = [
 
 setup(
     name='sessionlib',
-    version='0.2.0',
-    description="Session Library",
+    version='0.2.1',
+    description='Session Library',
     long_description=readme + '\n\n' + history,
-    author="Paulo Romeira",
+    author='Paulo Romeira',
     author_email='paulo@pauloromeira.com',
     url='https://github.com/pauloromeira/sessionlib',
-    download_url='https://github.com/pauloromeira/sessionlib/tarball/0.2.0',
+    download_url='https://github.com/pauloromeira/sessionlib/tarball/0.2.1',
     packages=find_packages(include=['sessionlib']),
     include_package_data=True,
     install_requires=requirements,
-    license="MIT license",
+    license='MIT license',
     zip_safe=False,
     keywords='sessionlib',
     classifiers=[
@@ -44,7 +44,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         # TODO [romeira]: Add support for 2.x python versions {04/12/17 09:29}
-        # "Programming Language :: Python :: 2",
+        # 'Programming Language :: Python :: 2',
         # 'Programming Language :: Python :: 2.6',
         # 'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
